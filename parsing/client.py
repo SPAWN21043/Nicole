@@ -2,13 +2,14 @@ from requests_html import HTMLSession
 import json
 
 
+# Вывод категорий по кнопке услуги
 def service(m):
     session = HTMLSession()
 
     param = session.get(
         f'https://dikidi.app/mobile/ajax/newrecord/company_services/?lang=ru&company={m}&master=&share='
     )
-    print(session.cookies)
+
     list_service = param.text
     data = json.loads(list_service)
 
