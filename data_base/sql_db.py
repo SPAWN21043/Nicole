@@ -48,3 +48,7 @@ def read_salon():
 
 async def sql_read_basket(user_id):
     return cur.execute('SELECT user_sess FROM user_session WHERE id_user == ?', (user_id,)).fetchall()
+
+
+async def read_auth(id_user):
+    return cur.execute('SELECT phone, password FROM user_auth WHERE id_user == ?', (id_user,)).fetchone()
