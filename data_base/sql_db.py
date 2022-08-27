@@ -11,20 +11,38 @@ def sql_start():
     cur.execute(
         """
         CREATE TABLE IF NOT EXISTS salons(
-        id INTEGER PRIMARY KEY,
         title TEXT,
         adress TEXT,
         phone TEXT,
-        id_vk INTEGER
+        id_vk INTEGER PRIMARY KEY
         );
         """
     )
     base.commit()
 
-    cur.execute('''CREATE TABLE IF NOT EXISTS user_session (id INTEGER PRIMARY KEY, id_user INTEGER, user_sess TEXT)''')
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS user_auth(
+        id_user INTEGER PRIMARY KEY,
+        phone INTEGER,
+        password TEXT
+        );
+        """
+    )
+    base.commit()
+
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS admins(
+        id_admin INTEGER PRIMARY KEY,
+        name TEXT
+        );
+        """
+    )
+    base.commit()
 
 
-def sql_read_salon():
+def read_salon():
     return cur.execute('SELECT title, id_vk FROM salons').fetchall()
 
 

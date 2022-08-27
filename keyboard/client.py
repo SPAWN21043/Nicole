@@ -1,6 +1,6 @@
 from aiogram import types
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
-from data_base.sql_db import sql_read_salon
+from aiogram.types import ReplyKeyboardMarkup
+from data_base.sql_db import read_salon
 import sqlite3 as sq
 
 base = sq.connect('nicole.db')
@@ -17,12 +17,19 @@ buttons = ['Услуги', 'Специалисты']
 kb_keyboard.add(*buttons)
 buttons2 = ['Информация о салонах']
 kb_keyboard.add(*buttons2)
-buttons3 = ['Помощь', 'Наши мастера']
+buttons3 = ['Помощь', 'ЛК']
 kb_keyboard.add(*buttons3)
 
 
+lk_keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+buttons = ['Услуги', 'Специалисты']
+lk_keyboard.add(*buttons)
+buttons2 = ['Информация о салонах']
+lk_keyboard.add(*buttons2)
+
+
 def service_salon(m):
-    ret = sql_read_salon()
+    ret = read_salon()
     buttons1 = []
 
     for item in ret:
@@ -37,7 +44,7 @@ def service_salon(m):
 
 
 def master_salon(m):
-    mast = sql_read_salon()
+    mast = read_salon()
     buttons1 = []
 
     for item in mast:
@@ -52,7 +59,7 @@ def master_salon(m):
 
 
 def info_salon_info(m):
-    inf = sql_read_salon()
+    inf = read_salon()
     buttons1 = []
 
     for item in inf:
