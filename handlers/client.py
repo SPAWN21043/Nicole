@@ -7,7 +7,7 @@ from parsing.client import service, service_id, date_id, date_master, time_maste
 from parsing.client import master_select, master_cat, master_serv_cat, master_serv_date, master_time_date
 import sqlite3 as sq
 from data_base import sql_db
-
+from  chrome import par_selen
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher import FSMContext
 
@@ -168,7 +168,8 @@ async def uslugi_auth_run(call: types.CallbackQuery):
         await call.message.answer('Введите номер должен начинаться с 7 без +')
 
     else:
-        print('нет')
+        await call.message.answer('Запись обрабатывается')
+        text = par_selen.selen_auth(salon, usluga, master, date, new_time, read[0], read[1])
 
 
 # Вывод салонов по кнопке специалисты
@@ -296,7 +297,8 @@ async def master_auth_run(call: types.CallbackQuery):
         await call.message.answer('Введите номер должен начинаться с 7 без +')
 
     else:
-        print('нет')
+        await call.message.answer('Запись обрабатывается')
+        text = par_selen.selen_auth(salon, usluga, master, date, new_time, read[0], read[1])
 
 
 # проверка ответа на отсутствие текста
