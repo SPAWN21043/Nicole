@@ -13,10 +13,14 @@ useragent = UserAgent()
 def selen_auth(salon, usluga, master, data, time_user, phone_user, password_user):
     options = webdriver.ChromeOptions()
     options.add_argument(f'user-agent={useragent.random}')
+    '''options.add_argument("--disable-blink-features=AutomationControlled")'''
+    '''options.headless = True'''
+
     url = f'https://dikidi.app/{salon}?p=4.pi-po-sm-ss-sd&o=1&m={master}&s={usluga}'
-    driver = webdriver.Chrome(executable_path='/home/aleksey/Project/seleniumparser/chrome/chromedriver',
-                              options=options
-                              )
+
+    driver = webdriver.Chrome(
+        executable_path='/home/aleksey/Project/Nicole/chrome/chromedriver', options=options
+    )
 
     try:
         driver.get(url=url)
@@ -58,10 +62,27 @@ def selen_auth(salon, usluga, master, data, time_user, phone_user, password_user
         button_user[1].click()
         time.sleep(5)
 
-        button_auth = driver.find_element(By.XPATH, "//a[@class='btn btn-block btn-default btn-stylized nrs-gradient nr-continue']")
-        button_auth.click()
-        time.sleep(5)
+        alert_yes = driver.find_elements(By.XPATH, "//div[text()='Неверный логин или пароль']")
+        allarm = len(alert_yes)
 
+        if allarm == 1:
+            bt_s_ok = driver.find_elements(By.XPATH, "//button[text()='Ок']")
+
+            bt_ok = driver.find_element(By.XPATH, "//button[text()='Ок']")
+            bt_ok.click()
+
+            return 'Неверный логин или пароль'
+
+        else:
+
+            button_auth = driver.find_element(
+                By.XPATH, "//a[@class='btn btn-block btn-default btn-stylized nrs-gradient nr-continue']"
+            )
+            button_auth.click()
+            time.sleep(3)
+
+            return f'Вы записаны!\n' \
+                   f'Дата: {data}, Время: {time_user}.'
 
     except Exception as ex:
         print(ex)
