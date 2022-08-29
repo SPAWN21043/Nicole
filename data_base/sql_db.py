@@ -46,12 +46,20 @@ def read_salon():
     return cur.execute('SELECT title, id_vk FROM salons').fetchall()
 
 
-async def sql_read_basket(user_id):
-    return cur.execute('SELECT user_sess FROM user_session WHERE id_user == ?', (user_id,)).fetchall()
-
-
 async def read_auth(id_user):
     return cur.execute('SELECT phone, password FROM user_auth WHERE id_user == ?', (id_user,)).fetchone()
+
+
+async def read_admin(id_user):
+    return cur.execute('SELECT id_admin FROM admins WHERE id_admin == ?', (id_user,)).fetchone()
+
+
+async def read_all_admins():
+    return cur.execute('SELECT * FROM admins').fetchall()
+
+
+async def read_all_salon():
+    return cur.execute('SELECT * FROM salons').fetchall()
 
 
 async def creat_auth_user(state):
@@ -60,6 +68,28 @@ async def creat_auth_user(state):
         base.commit()
 
 
+async def creat_admin(state):
+    async with state.proxy() as data:
+        cur.execute('INSERT INTO admins VALUES (?, ?)', tuple(data.values()))
+        base.commit()
+
+
+async def creat_salon(state):
+    async with state.proxy() as data:
+        cur.execute('INSERT INTO admins VALUES (?, ?, ?, ?)', tuple(data.values()))
+        base.commit()
+
+
 async def delete_auth(user_id):
-    cur.execute('DELETE FROM user_auth WHERE id_user==? and name == ?', (user_id,))
+    cur.execute('DELETE FROM user_auth WHERE id_user==?', (user_id,))
+    base.commit()
+
+
+async def delete_admin(user_id):
+    cur.execute('DELETE FROM admins WHERE id_admin==?', (user_id,))
+    base.commit()
+
+
+async def delete_salon_s(user_id):
+    cur.execute('DELETE FROM salons WHERE id_vk==? and name == ?', (user_id,))
     base.commit()
