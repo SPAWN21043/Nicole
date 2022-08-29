@@ -32,7 +32,7 @@ def service_id(m, item):
     param = session.get(
         f'https://dikidi.app/mobile/ajax/newrecord/company_services/?lang=ru&company={m}&master=&share='
     )
-    print(session.cookies)
+
     list_service = param.text
     data = json.loads(list_service)
 
@@ -260,7 +260,7 @@ def par_master_info():
 
     t = param.text
     data = json.loads(t)
-    print(data)
+
     img = data['masters']['1635673']['image']
 
     return img

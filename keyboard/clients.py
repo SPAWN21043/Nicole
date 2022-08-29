@@ -22,9 +22,9 @@ kb_keyboard.add(*buttons3)
 
 
 lk_keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-buttons = ['Услуги', 'Специалисты']
+buttons = ['Добавить номер и пароль']
 lk_keyboard.add(*buttons)
-buttons2 = ['Информация о салонах']
+buttons2 = ['Удалить данные', 'Вернуться']
 lk_keyboard.add(*buttons2)
 
 

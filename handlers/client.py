@@ -1,13 +1,11 @@
 from aiogram import types, Dispatcher
 from config import dp, bot
-from keyboard.client import kb_keyboard, service_key, serv_key, service_salon
-from keyboard.client import master_salon, info_salon_info
+from keyboard import clients
 from aiogram.dispatcher.filters import Text
-from parsing.client import service, service_id, date_id, date_master, time_master, work_salon_info
-from parsing.client import master_select, master_cat, master_serv_cat, master_serv_date, master_time_date
+from parsing import client
 import sqlite3 as sq
 from data_base import sql_db
-from  chrome import par_selen
+from chrome import par_selen
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher import FSMContext
 
@@ -41,7 +39,7 @@ async def start_sent(message: types.Message):
            f'Если не помните пароль перейдите на сайт: \n' \
            f'https://dikidi.ru/ для восстановления пароля.'
 
-    await bot.send_message(message.from_user.id, text, reply_markup=kb_keyboard)
+    await bot.send_message(message.from_user.id, text, reply_markup=clients.kb_keyboard)
     await message.delete()
 
 
@@ -51,7 +49,7 @@ async def salon_service(message: types.Message):
 
     text = "Выберите удобный для вас салон"
 
-    await message.answer(text, reply_markup=service_salon(text))
+    await message.answer(text, reply_markup=clients.service_salon(text))
 
 
 # Вывод категорий по кнопке услуги
@@ -60,9 +58,9 @@ async def cat_service(call: types.CallbackQuery):
 
     salon = call.data.split('|')[1]
 
-    mr = service(int(salon))
+    mr = client.service(int(salon))
 
-    await call.message.answer('Выберите категорию', reply_markup=service_key(mr))
+    await call.message.answer('Выберите категорию', reply_markup=clients.service_key(mr))
     '''await call.message.delete()'''
     await call.answer()
 
@@ -74,18 +72,18 @@ async def ser_callback_run(call: types.CallbackQuery):
     serv = call.data.split('|')[1]
     salon = call.data.split('|')[2]
 
-    mr = service_id(int(salon), int(serv))
+    mr = client.service_id(int(salon), int(serv))
 
     if len(mr) < 50:
-        await call.message.answer('Выберите услугу', reply_markup=serv_key(mr))
+        await call.message.answer('Выберите услугу', reply_markup=clients.serv_key(mr))
         '''await call.message.delete()'''
         await call.answer()
     else:
         one = mr[0:50]
         two = mr[50:len(mr)+1]
 
-        await call.message.answer('Выберите услугу', reply_markup=serv_key(one))
-        await call.message.answer('Продолжение услуг', reply_markup=serv_key(two))
+        await call.message.answer('Выберите услугу', reply_markup=clients.serv_key(one))
+        await call.message.answer('Продолжение услуг', reply_markup=clients.serv_key(two))
         '''await call.message.delete()'''
         await call.answer()
 
@@ -97,9 +95,9 @@ async def date_callback_run(call: types.CallbackQuery):
     usl_id = call.data.split('|')[1]
     salon = call.data.split('|')[2]
 
-    mr = date_id(int(salon), int(usl_id))
+    mr = client.date_id(int(salon), int(usl_id))
 
-    await call.message.answer('Выберите дату', reply_markup=service_key(mr))
+    await call.message.answer('Выберите дату', reply_markup=clients.service_key(mr))
     '''await call.message.delete()'''
     await call.answer()
 
@@ -112,9 +110,9 @@ async def master_callback_run(call: types.CallbackQuery):
     salon = call.data.split('|')[2]
     usluga = call.data.split('|')[3]
 
-    mr = date_master(int(salon), date, int(usluga))
+    mr = client.date_master(int(salon), date, int(usluga))
 
-    await call.message.answer('Выберите мастера', reply_markup=service_key(mr))
+    await call.message.answer('Выберите мастера', reply_markup=clients.service_key(mr))
     '''await call.message.delete()'''
     await call.answer()
 
@@ -128,9 +126,9 @@ async def time_callback_run(call: types.CallbackQuery):
     usluga = call.data.split('|')[3]
     master = call.data.split('|')[4]
 
-    mr = time_master(int(salon), date, int(usluga), master)
+    mr = client.time_master(int(salon), date, int(usluga), master)
 
-    await call.message.answer('Выберите время', reply_markup=service_key(mr))
+    await call.message.answer('Выберите время', reply_markup=clients.service_key(mr))
     '''await call.message.delete()'''
     await call.answer()
 
@@ -166,17 +164,19 @@ async def uslugi_auth_run(call: types.CallbackQuery):
         state = Dispatcher.get_current().current_state()
         await state.update_data(new_time=new_time)
         await call.message.answer('Введите номер должен начинаться с 7 без +')
+        await FSMRegAuth.phone.set()
 
     else:
         await call.message.answer('Запись обрабатывается')
         text = par_selen.selen_auth(salon, usluga, master, date, new_time, read[0], read[1])
+        await call.message.answer(text, reply_markup=clients.kb_keyboard)
 
 
 # Вывод салонов по кнопке специалисты
 @dp.message_handler(Text(equals="Специалисты"))
 async def salon_master(message: types.Message):
     text = "Выберите удобный для вас салон"
-    await message.answer(text, reply_markup=master_salon(text))
+    await message.answer(text, reply_markup=clients.master_salon(text))
     '''await message.delete()'''
 
 
@@ -185,9 +185,9 @@ async def salon_master(message: types.Message):
 async def cat_master(call: types.CallbackQuery):
 
     salon = call.data.split('|')[1]
-    mr = master_select(int(salon))
+    mr = client.master_select(int(salon))
 
-    await call.message.answer('Выберите мастера', reply_markup=service_key(mr))
+    await call.message.answer('Выберите мастера', reply_markup=clients.service_key(mr))
     '''await call.message.delete()'''
     await call.answer()
 
@@ -198,9 +198,9 @@ async def master_usluga(call: types.CallbackQuery):
 
     salon = call.data.split('|')[1]
     master = call.data.split('|')[2]
-    mr = master_cat(int(salon), int(master))
+    mr = client.master_cat(int(salon), int(master))
 
-    await call.message.answer('Выберите категорию', reply_markup=service_key(mr))
+    await call.message.answer('Выберите категорию', reply_markup=clients.service_key(mr))
     '''await call.message.delete()'''
     await call.answer()
 
@@ -212,18 +212,18 @@ async def master_categories(call: types.CallbackQuery):
     salon = call.data.split('|')[1]
     master = call.data.split('|')[2]
     cat = call.data.split('|')[3]
-    mk = master_serv_cat(int(salon), int(master), int(cat))
+    mk = client.master_serv_cat(int(salon), int(master), int(cat))
 
     if len(mk) < 45:
-        await call.message.answer('Выберите услугу', reply_markup=serv_key(mk))
+        await call.message.answer('Выберите услугу', reply_markup=clients.serv_key(mk))
         '''await call.message.delete()'''
         await call.answer()
     else:
         one = mk[0:45]
         two = mk[45:len(mk) + 1]
 
-        await call.message.answer('Выберите услугу', reply_markup=serv_key(one))
-        await call.message.answer('Продолжение услуг', reply_markup=serv_key(two))
+        await call.message.answer('Выберите услугу', reply_markup=clients.serv_key(one))
+        await call.message.answer('Продолжение услуг', reply_markup=clients.serv_key(two))
         '''await call.message.delete()'''
         await call.answer()
 
@@ -235,7 +235,7 @@ async def master_date_run(call: types.CallbackQuery):
     salon = call.data.split('|')[1]
     master = call.data.split('|')[2]
     usluga = call.data.split('|')[4]
-    mr = master_serv_date(int(salon), int(master), int(usluga))
+    mr = client.master_serv_date(int(salon), int(master), int(usluga))
     pusto = []
 
     if mr == pusto:
@@ -244,7 +244,7 @@ async def master_date_run(call: types.CallbackQuery):
                                   f'для онлайн-записи. Попробуйте позже или\n'
                                   f'обратитесь к специалисту по телефону.')
     else:
-        await call.message.answer('Выберите дату', reply_markup=service_key(mr))
+        await call.message.answer('Выберите дату', reply_markup=clients.service_key(mr))
         '''await call.message.delete()'''
         await call.answer()
 
@@ -257,9 +257,9 @@ async def master_time_run(call: types.CallbackQuery):
     master = call.data.split('|')[2]
     usluga = call.data.split('|')[3]
     date = call.data.split('|')[4]
-    mr = master_time_date(int(salon), int(master), int(usluga), date)
+    mr = client.master_time_date(int(salon), int(master), int(usluga), date)
 
-    await call.message.answer('В разработке', reply_markup=service_key(mr))
+    await call.message.answer('В разработке', reply_markup=clients.service_key(mr))
     '''await call.message.delete()'''
     await call.answer()
 
@@ -295,10 +295,12 @@ async def master_auth_run(call: types.CallbackQuery):
         state = Dispatcher.get_current().current_state()
         await state.update_data(new_time=new_time)
         await call.message.answer('Введите номер должен начинаться с 7 без +')
+        await FSMRegAuth.phone.set()
 
     else:
         await call.message.answer('Запись обрабатывается')
         text = par_selen.selen_auth(salon, usluga, master, date, new_time, read[0], read[1])
+        await call.message.answer(text, reply_markup=clients.kb_keyboard)
 
 
 # проверка ответа на отсутствие текста
@@ -310,7 +312,7 @@ async def process_phone_invalid(message: types.Message):
     return await message.reply("Номер должен состоять из цифр")
 
 
-@dp.message_handler(content_types=['text'], state=FSMRegAuth.phone)
+@dp.message_handler(state=FSMRegAuth.phone)
 async def load_phone_auth(message: types.Message, state: FSMContext):
 
     async with state.proxy() as data:
@@ -321,21 +323,23 @@ async def load_phone_auth(message: types.Message, state: FSMContext):
 
 # Ловим последний ответ и исполняем полученные данные
 @dp.message_handler(state=FSMRegAuth.password)
-async def load_price(message: types.Message, state: FSMContext):
+async def load_password_auth(message: types.Message, state: FSMContext):
 
     async with state.proxy() as data:
         data['password'] = message.text
 
-    await sql_db.sql_add_command(state)  # Нужно сделать функцию
+    text = par_selen.selen_auth(
+        data['salon'], data['usluga'], data['master'], data['date'], data['new_time'], data['phone'], data['password']
+    )
     await state.finish()
-    await message.reply("Товар добавлен")
+    await message.reply(text, reply_markup=clients.kb_keyboard)
 
 
 # Вывод списка салонов по кнопке информация
 @dp.message_handler(Text(equals="Информация о салонах"))
 async def info_salon(message: types.Message):
     text = "Выберите салон"
-    await message.answer(text, reply_markup=info_salon_info(text))
+    await message.answer(text, reply_markup=clients.info_salon_info(text))
 
 
 # Вывод информации о салоне
@@ -343,7 +347,7 @@ async def info_salon(message: types.Message):
 async def salon_info_salon(call: types.CallbackQuery):
 
     salon = call.data.split('|')[1]
-    mr = work_salon_info(int(salon))
+    mr = client.work_salon_info(int(salon))
 
     await call.message.answer(mr)
     '''await call.message.delete()'''
@@ -356,17 +360,78 @@ async def info_bot(message: types.Message):
            f"Для получения информации о салонах нажать на кнопку Информация о салонах.\n" \
            f"Если не отображаются кнопки снизу, необходимо написать /start.\n" \
            f"Для получения информации о работе бота нажать кнопку Помощь."
-    await message.answer(text, reply_markup=kb_keyboard)
+    await message.answer(text, reply_markup=clients.kb_keyboard)
     '''await message.delete()'''
 
 
 @dp.message_handler(commands=['MyID'])
-async def start_sent(message: types.Message):
+async def id_sent(message: types.Message):
 
     id_user = message.from_user.id
 
-    await bot.send_message(message.from_user.id, f'Ваш ID {id_user}', reply_markup=kb_keyboard)
+    await bot.send_message(message.from_user.id, f'Ваш ID {id_user}', reply_markup=clients.kb_keyboard)
     await message.delete()
+
+
+@dp.message_handler(Text(equals="ЛК"))
+async def lk_user(message: types.Message):
+    text = f"Вы находитесь в личном кабинете.\n" \
+           f"Для автоматической записи вы можете сохранить свой номер телефона и пароль.\n" \
+           f"Так же вы можете удалить свой номер и пароль."
+    await message.answer(text, reply_markup=clients.lk_keyboard)
+    '''await message.delete()'''
+
+
+@dp.message_handler(Text(equals="Добавить номер и пароль"), state=None)
+async def lk_creat_auth(message: types.Message):
+    user = message.from_user.id
+
+    await FSMAuthSave.id_client.set()
+    state = Dispatcher.get_current().current_state()
+    await state.update_data(id_client=user)
+    await message.answer('Введите номер должен начинаться с 7 без +')
+    await FSMAuthSave.phone.set()
+
+
+# проверка ответа на отсутствие текста
+@dp.message_handler(lambda message: not message.text.isdigit(), state=FSMAuthSave.phone)
+async def auth_phone_invalid(message: types.Message):
+    """
+    If phone is invalid
+    """
+    return await message.reply("Номер должен состоять из цифр")
+
+
+@dp.message_handler(state=FSMAuthSave.phone)
+async def creat_phone_auth(message: types.Message, state: FSMContext):
+
+    async with state.proxy() as data:
+        data['phone'] = int(message.text)
+    await FSMRegAuth.next()
+    await message.reply('Введите пароль')
+
+
+# Ловим последний ответ и исполняем полученные данные
+@dp.message_handler(state=FSMAuthSave.password)
+async def creat_password_auth(message: types.Message, state: FSMContext):
+
+    async with state.proxy() as data:
+        data['password'] = message.text
+
+    await sql_db.creat_auth_user(state)
+    await state.finish()
+    await message.reply('Сохранено', reply_markup=clients.lk_keyboard)
+
+
+@dp.message_handler(Text(equals="Удалить данные"))
+async def lk_delete_auth(message: types.Message):
+
+    text = 'Данные удалены'
+    user = message.from_user.id
+
+    await sql_db.delete_auth(user)
+    await message.answer(text, reply_markup=clients.lk_keyboard)
+    '''await message.delete()'''
 
 
 # Регистрация команд
@@ -389,8 +454,18 @@ def register_handlers_client(dp: Dispatcher):
     dp.register_message_handler(master_auth_run, state=None)
     dp.register_message_handler(process_phone_invalid, state=FSMRegAuth.phone)
     dp.register_message_handler(load_phone_auth, state=FSMRegAuth.phone)
+    dp.register_message_handler(load_password_auth, state=FSMRegAuth.password)
 
     dp.register_message_handler(info_salon)
     dp.register_message_handler(salon_info_salon)
 
     dp.register_message_handler(info_bot)
+
+    dp.register_message_handler(id_sent)
+
+    dp.register_message_handler(lk_user)
+    dp.register_message_handler(lk_creat_auth, state=None)
+    dp.register_message_handler(auth_phone_invalid, state=FSMAuthSave.phone)
+    dp.register_message_handler(creat_phone_auth, state=FSMAuthSave.phone)
+    dp.register_message_handler(creat_password_auth, state=FSMAuthSave.password)
+    dp.register_message_handler(lk_delete_auth)

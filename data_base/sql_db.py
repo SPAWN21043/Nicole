@@ -52,3 +52,14 @@ async def sql_read_basket(user_id):
 
 async def read_auth(id_user):
     return cur.execute('SELECT phone, password FROM user_auth WHERE id_user == ?', (id_user,)).fetchone()
+
+
+async def creat_auth_user(state):
+    async with state.proxy() as data:
+        cur.execute('INSERT INTO user_auth VALUES (?, ?, ?)', tuple(data.values()))
+        base.commit()
+
+
+async def delete_auth(user_id):
+    cur.execute('DELETE FROM user_auth WHERE id_user==? and name == ?', (user_id,))
+    base.commit()
