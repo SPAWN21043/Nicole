@@ -327,6 +327,7 @@ async def load_password_auth(message: types.Message, state: FSMContext):
 
     async with state.proxy() as data:
         data['password'] = message.text
+    await bot.send_message()
 
     text = par_selen.selen_auth(
         data['salon'], data['usluga'], data['master'], data['date'], data['new_time'], data['phone'], data['password']
@@ -407,7 +408,7 @@ async def creat_phone_auth(message: types.Message, state: FSMContext):
 
     async with state.proxy() as data:
         data['phone'] = int(message.text)
-    await FSMRegAuth.next()
+    await FSMAuthSave.next()
     await message.reply('Введите пароль')
 
 
@@ -417,7 +418,6 @@ async def creat_password_auth(message: types.Message, state: FSMContext):
 
     async with state.proxy() as data:
         data['password'] = message.text
-
     await sql_db.creat_auth_user(state)
     await state.finish()
     await message.reply('Сохранено', reply_markup=clients.lk_keyboard)

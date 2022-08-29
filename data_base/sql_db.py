@@ -76,7 +76,7 @@ async def creat_admin(state):
 
 async def creat_salon(state):
     async with state.proxy() as data:
-        cur.execute('INSERT INTO admins VALUES (?, ?, ?, ?)', tuple(data.values()))
+        cur.execute('INSERT INTO salons VALUES (?, ?, ?, ?)', tuple(data.values()))
         base.commit()
 
 
@@ -91,5 +91,5 @@ async def delete_admin(user_id):
 
 
 async def delete_salon_s(user_id):
-    cur.execute('DELETE FROM salons WHERE id_vk==? and name == ?', (user_id,))
+    cur.execute('DELETE FROM salons WHERE id_vk==?', (user_id,))
     base.commit()

@@ -120,10 +120,13 @@ async def delete_admin(message: types.Message):
     admin_admin = await sql_db.read_admin(user)
 
     if user == chief_admin or master or admin_admin:
+
         read = await sql_db.read_all_admins()
+
         for ret in read:
-            await bot.send_photo(message.from_user.id, f'Администратор:\n'
-                                                       f'Имя: {ret[1]}')
+
+            await bot.send_message(message.from_user.id, f'Администратор:\n'
+                                                         f'Имя: {ret[1]}')
             await bot.send_message(
                 message.from_user.id,
                 text='⬆⬆⬆⬆⬆⬆⬆⬆',
@@ -251,9 +254,9 @@ async def delete_salon(message: types.Message):
     if user == chief_admin or master or admin_admin:
         read = await sql_db.read_all_salon()
         for ret in read:
-            await bot.send_photo(message.from_user.id, f'Салон:\n'
-                                                       f'Имя: {ret[0]}\n'
-                                                       f'Адрес: {ret[1]}')
+            await bot.send_message(message.from_user.id, f'Салон:\n'
+                                                         f'Имя: {ret[0]}\n'
+                                                         f'Адрес: {ret[1]}')
             await bot.send_message(
                 message.from_user.id,
                 text='⬆⬆⬆⬆⬆⬆⬆⬆',
@@ -283,7 +286,7 @@ async def salon_delete_salon(call: types.CallbackQuery):
 @dp.message_handler(Text(equals="Вернуться"))
 async def back_return(message: types.Message):
 
-    await message.answer(reply_markup=clients.kb_keyboard)
+    await message.answer('Вы в чате с ботом', reply_markup=clients.kb_keyboard)
 
 
 # Регистрация команд

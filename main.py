@@ -1,11 +1,7 @@
-import os
-
 from aiogram.utils import executor
-
-import config
-from config import dp, bot
+from config import dp
 from data_base import sql_db
-from handlers import client, admin
+from handlers import client, admin, other
 
 
 async def on_startup(_):
@@ -20,6 +16,7 @@ async def on_startup(_):
 
 client.register_handlers_client(dp)
 admin.register_handlers_admin(dp)
+other.register_handlers_admin(dp)
 
 executor.start_polling(dp, skip_updates=True, on_startup=on_startup)
 
