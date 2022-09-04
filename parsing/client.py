@@ -63,8 +63,12 @@ def date_id(m, item):
     data = json.loads(list_service)
 
     service_date = []
+    object_data = data['data']['dates_true']
+    stop = 7
+    slice_object = slice(stop)
+    result = object_data[slice_object]
 
-    for it in data['data']['dates_true']:
+    for it in result:
         date = it
         salon = m
         usluga = item

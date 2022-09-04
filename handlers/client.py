@@ -37,7 +37,8 @@ async def start_sent(message: types.Message):
            f'Если вы первый раз хотите записаться, перейдите по ссылке: \n' \
            f'https://hipolink.me/grooming_nicole\n' \
            f'Если не помните пароль перейдите на сайт: \n' \
-           f'https://dikidi.ru/ для восстановления пароля.'
+           f'https://dikidi.ru/ для восстановления пароля.' \
+           f'Если обработка записи длится более 5 минут, попробуйте записаться заново.'
 
     await bot.send_message(message.from_user.id, text, reply_markup=clients.kb_keyboard)
     await message.delete()
@@ -259,7 +260,7 @@ async def master_time_run(call: types.CallbackQuery):
     date = call.data.split('|')[4]
     mr = client.master_time_date(int(salon), int(master), int(usluga), date)
 
-    await call.message.answer('В разработке', reply_markup=clients.service_key(mr))
+    await call.message.answer('Выберите время', reply_markup=clients.service_key(mr))
     '''await call.message.delete()'''
     await call.answer()
 
@@ -327,13 +328,13 @@ async def load_password_auth(message: types.Message, state: FSMContext):
 
     async with state.proxy() as data:
         data['password'] = message.text
-    await bot.send_message()
+    await message.reply('Запись обрабатывается')
 
     text = par_selen.selen_auth(
         data['salon'], data['usluga'], data['master'], data['date'], data['new_time'], data['phone'], data['password']
     )
-    await state.finish()
     await message.reply(text, reply_markup=clients.kb_keyboard)
+    await state.finish()
 
 
 # Вывод списка салонов по кнопке информация
@@ -429,9 +430,17 @@ async def lk_delete_auth(message: types.Message):
     text = 'Данные удалены'
     user = message.from_user.id
 
-    await sql_db.delete_auth(user)
-    await message.answer(text, reply_markup=clients.lk_keyboard)
-    '''await message.delete()'''
+    memory = await sql_db.read_auth(user)
+
+    if memory is None:
+
+        await message.answer("У вас нет сохраненных данных", reply_markup=clients.lk_keyboard)
+
+    else:
+
+        await sql_db.delete_auth(user)
+        await message.answer(text, reply_markup=clients.lk_keyboard)
+        '''await message.delete()'''
 
 
 # Регистрация команд
